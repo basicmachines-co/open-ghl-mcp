@@ -1,0 +1,70 @@
+# fly.toml app configuration file generated for open-ghl-mcp
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "open-ghl-mcp"
+primary_region = "iad"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[experimental]
+  auto_rollback = true
+
+[build]
+
+[env]
+  PORT = "8000"
+  SERVER_URL = "https://open-ghl-mcp.fly.dev"
+  SUPABASE_URL = "https://egigkzfowimxfavnjvpe.supabase.co"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+  
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "1s"
+    restart_limit = 0
+
+  [[services.http_checks]]
+    interval = "10s"
+    timeout = "2s"
+    grace_period = "5s"
+    restart_limit = 0
+    path = "/health"
+    method = "get"
+    protocol = "http"
+    tls_skip_verify = false
+
+# Scale to zero configuration
+[scale]
+  min_machines = 0
+  max_machines = 3
+  shared_ipv4 = true
+
+# Machine configuration
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "256mb"
+
+# Metrics
+[metrics]
+  port = 8001

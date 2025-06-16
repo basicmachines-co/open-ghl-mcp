@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.env
+config/tokens.json
+config/standard_config.json
+tests/
+docs/
+README.md
+LICENSE
+CLAUDE.md
+*.md
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Development
+.coveragerc
+pytest.ini
+setup.cfg
+pyproject.toml
+
+# Logs
+*.log
+logs/
+
+# Local development
+local/
+temp/
+tmp/

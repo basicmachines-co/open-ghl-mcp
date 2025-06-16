@@ -63,7 +63,7 @@ OAUTH_SERVER_PORT=8080
         """Test that relative path usage has been fixed in main.py and setup.py"""
 
         # Read the main.py file to verify no more Path(".env") usage
-        main_file = Path(__file__).parent.parent / "src" / "main.py"
+        main_file = Path(__file__).parent.parent.parent / "src" / "main.py"
         main_content = main_file.read_text()
 
         # Should not contain any relative .env path references
@@ -77,7 +77,7 @@ OAUTH_SERVER_PORT=8080
         ), "Should use setup.env_file.exists() for custom mode check"
 
         # Read the setup.py file to verify no more Path(".env") usage
-        setup_file = Path(__file__).parent.parent / "src" / "services" / "setup.py"
+        setup_file = Path(__file__).parent.parent.parent / "src" / "services" / "setup.py"
         setup_content = setup_file.read_text()
 
         # Should not contain any relative .env path references
@@ -97,5 +97,5 @@ OAUTH_SERVER_PORT=8080
         assert setup.env_file.is_absolute()
 
         # Should be in the same directory as the module parent
-        expected_root = Path(__file__).parent.parent  # tests/ -> project root
+        expected_root = Path(__file__).parent.parent.parent  # tests/mcp/ -> tests/ -> project root
         assert setup.env_file.parent == expected_root

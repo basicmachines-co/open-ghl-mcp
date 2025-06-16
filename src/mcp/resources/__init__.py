@@ -2,6 +2,3 @@
 
 # Import all resources to make them discoverable by FastMCP
 from .contacts import *  # noqa: F403
-from .conversations import *  # noqa: F403
-from .opportunities import *  # noqa: F403
-from .calendars import *  # noqa: F403

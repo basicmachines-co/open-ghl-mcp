@@ -11,6 +11,12 @@ cryptography>=41.0.0
 aiohttp>=3.9.0
 PyJWT>=2.8.0
 
+# HTTP Server dependencies
+fastapi>=0.110.0
+uvicorn>=0.27.0
+sse-starlette>=2.0.0
+python-jose>=3.3.0
+
 # Async support
 aiofiles>=23.0.0
 

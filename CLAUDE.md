@@ -96,7 +96,7 @@ The MCP server follows a modular architecture:
 6. **Testing** (`tests/*`)
    - IMPORTANT: If you need to change the auth configuration do not destroy a valid config. Instead, move it somewhere it can be moved back
    - Use the virtual environment when testing: `$ source .venv/bin/activate && python`
-   - Put tests in the tests/ directory
+   - Put tests in the tests/ directory and mirror the folder structure in src/ with a matching test file for each source file
    - Run all of the checks with the tests: `uv run black src/ tests/ && uv run flake8 src/ tests/ && uv run mypy src/ --ignore-missing-imports && uv run pytest`
    - To test interactive server startup flows (like setup wizards), use piped input: `echo -e "2\ny\nclient_id\nclient_secret" | uv run python -m src.main`
      - The server detects if it's running interactively vs being managed by Claude Desktop
