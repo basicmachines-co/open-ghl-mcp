@@ -7,6 +7,7 @@ from .conversations import ConversationsClient
 from .opportunities import OpportunitiesClient
 from .calendars import CalendarsClient
 from .forms import FormsClient
+from .custom_fields import CustomFieldsClient
 
 __all__ = [
     "GoHighLevelClient",
@@ -16,4 +17,5 @@ __all__ = [
     "OpportunitiesClient",
     "CalendarsClient",
     "FormsClient",
+    "CustomFieldsClient",
 ]

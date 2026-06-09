@@ -21,6 +21,7 @@ from .mcp.tools.conversations import _register_conversation_tools
 from .mcp.tools.opportunities import _register_opportunity_tools
 from .mcp.tools.calendars import _register_calendar_tools
 from .mcp.tools.forms import _register_form_tools
+from .mcp.tools.custom_fields import _register_custom_field_tools
 
 
 async def startup_check_and_setup():
@@ -153,6 +154,7 @@ def register_all_tools():
     _register_opportunity_tools(mcp, get_client, lambda: oauth_service)
     _register_calendar_tools(mcp, get_client)
     _register_form_tools(mcp, get_client)
+    _register_custom_field_tools(mcp, get_client)
 
 
 # Resources will be imported separately in Phase 3

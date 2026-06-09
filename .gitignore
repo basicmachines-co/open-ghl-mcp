@@ -64,3 +64,6 @@ Thumbs.db
 
 # Local testing configuration
 TESTING_INSTRUCTIONS.md
+
+# Spec analysis scratch (vendored properly in Phase 2)
+.ghl-spec-cache/

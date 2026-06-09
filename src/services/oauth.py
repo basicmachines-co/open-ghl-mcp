@@ -260,6 +260,10 @@ class OAuthService:
         "calendars/events.write",
         "forms.readonly",
         "forms.write",
+        "locations/customFields.readonly",
+        "locations/customFields.write",
+        "locations/customValues.readonly",
+        "locations/customValues.write",
     ]
 
     def __init__(self) -> None:

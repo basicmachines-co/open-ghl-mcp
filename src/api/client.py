@@ -35,12 +35,23 @@ from ..models.form import (
     FormSubmissionList,
     FormFileUploadRequest,
 )
+from ..models.custom_field import (
+    CustomField,
+    CustomFieldCreate,
+    CustomFieldUpdate,
+    CustomFieldList,
+    CustomValue,
+    CustomValueCreate,
+    CustomValueUpdate,
+    CustomValueList,
+)
 
 from .contacts import ContactsClient
 from .conversations import ConversationsClient
 from .opportunities import OpportunitiesClient
 from .calendars import CalendarsClient
 from .forms import FormsClient
+from .custom_fields import CustomFieldsClient
 
 
 class GoHighLevelClient:
@@ -59,6 +70,7 @@ class GoHighLevelClient:
         self._opportunities = OpportunitiesClient(oauth_service)
         self._calendars = CalendarsClient(oauth_service)
         self._forms = FormsClient(oauth_service)
+        self._custom_fields = CustomFieldsClient(oauth_service)
 
     async def __aenter__(self):
         # Enter all specialized clients
@@ -67,6 +79,7 @@ class GoHighLevelClient:
         await self._opportunities.__aenter__()
         await self._calendars.__aenter__()
         await self._forms.__aenter__()
+        await self._custom_fields.__aenter__()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -76,6 +89,7 @@ class GoHighLevelClient:
         await self._opportunities.__aexit__(exc_type, exc_val, exc_tb)
         await self._calendars.__aexit__(exc_type, exc_val, exc_tb)
         await self._forms.__aexit__(exc_type, exc_val, exc_tb)
+        await self._custom_fields.__aexit__(exc_type, exc_val, exc_tb)
 
     # Location Methods (keeping these in main client for now)
 
@@ -338,3 +352,69 @@ class GoHighLevelClient:
     ) -> Dict[str, Any]:
         """Upload a file to a form's custom field"""
         return await self._forms.upload_form_file(file_upload)
+
+    # Custom Field Methods - Delegate to CustomFieldsClient
+
+    async def get_custom_fields(
+        self, location_id: str, model: Optional[str] = None
+    ) -> CustomFieldList:
+        """Get all custom fields for a location"""
+        return await self._custom_fields.get_custom_fields(location_id, model)
+
+    async def get_custom_field(
+        self, custom_field_id: str, location_id: str
+    ) -> CustomField:
+        """Get a specific custom field"""
+        return await self._custom_fields.get_custom_field(custom_field_id, location_id)
+
+    async def create_custom_field(
+        self, location_id: str, field: CustomFieldCreate
+    ) -> CustomField:
+        """Create a new custom field"""
+        return await self._custom_fields.create_custom_field(location_id, field)
+
+    async def update_custom_field(
+        self, custom_field_id: str, location_id: str, updates: CustomFieldUpdate
+    ) -> CustomField:
+        """Update an existing custom field"""
+        return await self._custom_fields.update_custom_field(
+            custom_field_id, location_id, updates
+        )
+
+    async def delete_custom_field(self, custom_field_id: str, location_id: str) -> bool:
+        """Delete a custom field"""
+        return await self._custom_fields.delete_custom_field(
+            custom_field_id, location_id
+        )
+
+    # Custom Value Methods - Delegate to CustomFieldsClient
+
+    async def get_custom_values(self, location_id: str) -> CustomValueList:
+        """Get all custom values for a location"""
+        return await self._custom_fields.get_custom_values(location_id)
+
+    async def get_custom_value(
+        self, custom_value_id: str, location_id: str
+    ) -> CustomValue:
+        """Get a specific custom value"""
+        return await self._custom_fields.get_custom_value(custom_value_id, location_id)
+
+    async def create_custom_value(
+        self, location_id: str, value: CustomValueCreate
+    ) -> CustomValue:
+        """Create a new custom value"""
+        return await self._custom_fields.create_custom_value(location_id, value)
+
+    async def update_custom_value(
+        self, custom_value_id: str, location_id: str, updates: CustomValueUpdate
+    ) -> CustomValue:
+        """Update an existing custom value"""
+        return await self._custom_fields.update_custom_value(
+            custom_value_id, location_id, updates
+        )
+
+    async def delete_custom_value(self, custom_value_id: str, location_id: str) -> bool:
+        """Delete a custom value"""
+        return await self._custom_fields.delete_custom_value(
+            custom_value_id, location_id
+        )
