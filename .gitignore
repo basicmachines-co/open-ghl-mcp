@@ -5,6 +5,7 @@ config/
 .env
 .env.local
 .env.*.local
+*.bak
 
 # Token storage
 config/tokens.json

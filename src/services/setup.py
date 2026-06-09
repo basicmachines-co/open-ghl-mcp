@@ -467,8 +467,7 @@ OAUTH_SERVER_PORT=8080
         print("\n1. Open Claude Desktop settings")
         print("2. Navigate to 'Developer' → 'Edit Config'")
         print("3. Add the following to your mcpServers configuration:")
-        print(
-            f"""
+        print(f"""
 {{
   "mcpServers": {{
     "ghl-mcp-server": {{
@@ -484,7 +483,6 @@ OAUTH_SERVER_PORT=8080
     }}
   }}
 }}
-"""
-        )
+""")
         print("4. Save the configuration and restart Claude Desktop")
         print("\n✅ Your GoHighLevel MCP server is now configured!")

@@ -20,7 +20,6 @@ from ..params.opportunities import (
     GetPipelinesParams,
 )
 
-
 # Import the mcp instance and get_client from main
 # This will be set during import in main.py
 mcp = None
