@@ -8,6 +8,7 @@ from src.gateway.catalog import (
     EndpointEntry,
     load_catalog,
     search_catalog,
+    match_endpoint,
     SPECS_DIR,
     SUPPLEMENTAL_PATH,
 )
@@ -114,6 +115,24 @@ class TestEndpointEntryDisplay:
             source="supplemental",
         )
         assert e.display().endswith("(supplemental)")
+
+
+class TestMatchEndpoint:
+    def test_concrete_path_matches_templated_entry(self, catalog):
+        e = match_endpoint(catalog, "GET", "/contacts/abc123XYZ")
+        assert e is not None
+        assert e.path == "/contacts/{contactId}"
+
+    def test_method_must_match(self, catalog):
+        # there's no PATCH on that path
+        assert match_endpoint(catalog, "PATCH", "/contacts/abc123XYZ") is None
+
+    def test_query_string_ignored(self, catalog):
+        e = match_endpoint(catalog, "GET", "/contacts/?limit=10")
+        assert e is not None
+
+    def test_no_match_returns_none(self, catalog):
+        assert match_endpoint(catalog, "GET", "/totally/made/up") is None
 
 
 def test_supplemental_file_is_valid_json():

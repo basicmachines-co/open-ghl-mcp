@@ -68,6 +68,7 @@ from .custom_fields import CustomFieldsClient
 from .notes_tasks import NotesTasksClient
 from .users import UsersClient
 from .workflows import WorkflowsClient
+from ..gateway.request import GatewayClient
 
 
 class GoHighLevelClient:
@@ -90,6 +91,7 @@ class GoHighLevelClient:
         self._notes_tasks = NotesTasksClient(oauth_service)
         self._users = UsersClient(oauth_service)
         self._workflows = WorkflowsClient(oauth_service)
+        self._gateway = GatewayClient(oauth_service)
 
     async def __aenter__(self):
         # Enter all specialized clients
@@ -102,6 +104,7 @@ class GoHighLevelClient:
         await self._notes_tasks.__aenter__()
         await self._users.__aenter__()
         await self._workflows.__aenter__()
+        await self._gateway.__aenter__()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -115,6 +118,7 @@ class GoHighLevelClient:
         await self._notes_tasks.__aexit__(exc_type, exc_val, exc_tb)
         await self._users.__aexit__(exc_type, exc_val, exc_tb)
         await self._workflows.__aexit__(exc_type, exc_val, exc_tb)
+        await self._gateway.__aexit__(exc_type, exc_val, exc_tb)
 
     # Location Methods (keeping these in main client for now)
 
@@ -562,4 +566,19 @@ class GoHighLevelClient:
         """Remove a contact from a workflow"""
         return await self._workflows.remove_contact_from_workflow(
             contact_id, workflow_id, location_id
+        )
+
+    # Gateway - Delegate to GatewayClient (arbitrary endpoint execution)
+
+    async def gateway_execute(
+        self,
+        method: str,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any]] = None,
+        location_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Execute an arbitrary API call via the gateway client."""
+        return await self._gateway.execute(
+            method, endpoint, params=params, json=json, location_id=location_id
         )

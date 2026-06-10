@@ -1,0 +1,24 @@
+name: Spec Drift Check
+
+on:
+  schedule:
+    - cron: "0 12 * * 1" # weekly, Monday 12:00 UTC
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Report spec drift
+        run: python scripts/refresh_specs.py
+      - name: Open PR if specs changed
+        run: |
+          python scripts/refresh_specs.py --apply
+          if [ -n "$(git status --porcelain specs/ghl)" ]; then
+            echo "Spec changes detected; review the catalog and token-level/risk classifications." >> "$GITHUB_STEP_SUMMARY"
+            git status --porcelain specs/ghl >> "$GITHUB_STEP_SUMMARY"
+          fi

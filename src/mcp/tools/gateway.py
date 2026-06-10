@@ -7,8 +7,8 @@ surface that doesn't have a dedicated curated tool. The `ghl_request` gateway
 
 from typing import Dict, Any
 
-from ...gateway import get_catalog, search_catalog
-from ..params.gateway import ListEndpointsParams
+from ...gateway import get_catalog, search_catalog, plan_request
+from ..params.gateway import ListEndpointsParams, GhlRequestParams
 
 # Set during registration in main.py
 mcp = None
@@ -41,7 +41,49 @@ def _register_gateway_tools(_mcp, _get_client):
             "total_in_catalog": len(catalog),
             "endpoints": [e.display() for e in results],
             "note": (
-                "Prefer dedicated tools when one exists. A generic request tool "
-                "for these endpoints is coming in a later release."
+                "Prefer dedicated tools when one exists. Use ghl_request to call "
+                "the endpoints listed here."
             ),
         }
+
+    @mcp.tool()
+    async def ghl_request(params: GhlRequestParams) -> Dict[str, Any]:
+        """Call an arbitrary GoHighLevel v2 endpoint discovered via ghl_list_endpoints.
+
+        The token type (location vs agency) is chosen automatically and known
+        request quirks are normalized. Prefer a dedicated tool when one exists —
+        this is the escape hatch for the long tail (invoices, products, payments,
+        social planner, etc.). Destructive/high-impact calls require confirm=true;
+        a first call without it returns a preview.
+        """
+        catalog = get_catalog()
+        plan = plan_request(
+            params.method, params.path, params.location_id, params.confirm, catalog
+        )
+
+        if plan.action == "block":
+            return {"success": False, "blocked": plan.reason, "message": plan.message}
+        if plan.action == "confirm":
+            return {
+                "success": False,
+                "requires_confirmation": True,
+                "risk": plan.risk,
+                "message": plan.message,
+                "preview": {
+                    "method": params.method.upper(),
+                    "path": params.path,
+                    "params": params.params,
+                    "body": params.body,
+                },
+            }
+
+        client = await get_client(params.access_token)
+        result = await client.gateway_execute(
+            params.method,
+            params.path,
+            params=params.params,
+            json=params.body,
+            location_id=plan.token_location_id,
+        )
+        result["risk"] = plan.risk
+        return result

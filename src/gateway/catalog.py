@@ -11,11 +11,12 @@ so the supplemental list fills gaps the spec misses. Each entry records its
 documented vs. best-effort ground.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Pattern
 from dataclasses import dataclass
 from pathlib import Path
 import glob
 import json
+import re
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = PROJECT_ROOT / "specs" / "ghl"
@@ -128,6 +129,30 @@ def search_catalog(
             results.append(e)
     results.sort(key=lambda e: (e.category, e.path, e.method))
     return results[:limit]
+
+
+def _template_to_regex(template: str) -> Pattern:
+    """Compile a templated path (/contacts/{id}) into a concrete-path matcher."""
+    parts = re.split(r"\{[^/}]+\}", template)
+    return re.compile("^" + "[^/]+".join(re.escape(p) for p in parts) + "/?$")
+
+
+def match_endpoint(
+    catalog: List[EndpointEntry], method: str, concrete_path: str
+) -> Optional[EndpointEntry]:
+    """Find the catalog entry whose templated path matches a concrete path.
+
+    e.g. ("GET", "/contacts/abc123") matches the entry "/contacts/{contactId}".
+    Query strings are ignored. Returns the first match, or None.
+    """
+    m = method.upper()
+    path = concrete_path.split("?", 1)[0]
+    for e in catalog:
+        if e.method != m:
+            continue
+        if _template_to_regex(e.path).match(path):
+            return e
+    return None
 
 
 _CATALOG_CACHE: Optional[List[EndpointEntry]] = None

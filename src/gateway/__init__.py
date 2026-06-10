@@ -5,6 +5,22 @@ tool; subsequent steps add the `ghl_request` gateway, the quirk/override
 registry, and risk/confirmation gating.
 """
 
-from .catalog import EndpointEntry, load_catalog, search_catalog, get_catalog
+from .catalog import (
+    EndpointEntry,
+    load_catalog,
+    search_catalog,
+    get_catalog,
+    match_endpoint,
+)
+from .request import GatewayClient, RequestPlan, plan_request
 
-__all__ = ["EndpointEntry", "load_catalog", "search_catalog", "get_catalog"]
+__all__ = [
+    "EndpointEntry",
+    "load_catalog",
+    "search_catalog",
+    "get_catalog",
+    "match_endpoint",
+    "GatewayClient",
+    "RequestPlan",
+    "plan_request",
+]
