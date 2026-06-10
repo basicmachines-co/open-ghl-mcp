@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import secrets
 import webbrowser
@@ -674,10 +675,32 @@ class OAuthService:
 
         return self._auth_code_future
 
+    @staticmethod
+    def _decode_claims(access_token: str) -> Dict:
+        """Decode the (unverified) JWT payload of a GHL access token.
+
+        Returns the claims dict, or {} if the token isn't a decodable JWT.
+        GHL tokens carry authClass ("Company" | "Location") and authClassId
+        (the company ID for agency tokens, the location ID for location tokens).
+        """
+        try:
+            payload = access_token.split(".")[1]
+            payload += "=" * (-len(payload) % 4)  # pad to a multiple of 4
+            return json.loads(base64.urlsafe_b64decode(payload))
+        except Exception:
+            return {}
+
     async def get_location_token(
         self, location_id: str, force_refresh: bool = False
     ) -> str:
-        """Get location-specific access token"""
+        """Get a location-scoped access token for the given location.
+
+        Two custom-mode paths:
+        - Agency (Company) token: exchange it for a location token via
+          /oauth/locationToken (multi-sub-account use).
+        - Sub-account (Location) token: it is already scoped to one location;
+          return it directly, and refuse any other location.
+        """
         # Use standard auth if available
         if self.settings.auth_mode == AuthMode.STANDARD:
             if not self._standard_auth:
@@ -694,42 +717,35 @@ class OAuthService:
             if not cached_token.needs_refresh():
                 return cached_token.access_token
 
-        # Get agency token
-        agency_token = await self.get_valid_token()
+        # Get the stored token (agency or location-scoped)
+        stored = await self.load_token()
+        if not stored:
+            raise Exception("No token found; run authentication first")
+        access_token = await self.get_valid_token()
 
-        # Get the company ID from the stored token
-        token_data = await self.load_token()
-        if not token_data:
-            raise Exception("No agency token found")
+        claims = self._decode_claims(access_token)
+        auth_class = (claims.get("authClass") or stored.user_type or "").lower()
 
-        # Extract company ID from the token - this would need proper JWT decoding
-        # For now, we'll require it to be passed or extracted from token
-        import base64
-        import json
+        # Sub-account token: already scoped to a single location, use directly.
+        if auth_class == "location":
+            token_location = claims.get("authClassId")
+            if token_location and location_id != token_location:
+                raise Exception(
+                    f"This sub-account token is scoped to location "
+                    f"{token_location} and cannot access location {location_id}."
+                )
+            return access_token
 
-        # Decode JWT to get company ID
-        try:
-            # Split token and decode payload
-            parts = agency_token.split(".")
-            if len(parts) >= 2:
-                payload = parts[1]
-                # Add padding if necessary
-                payload += "=" * (4 - len(payload) % 4)
-                decoded = base64.b64decode(payload)
-                token_payload = json.loads(decoded)
-                company_id = token_payload.get("authClassId")
-                if not company_id:
-                    raise Exception("Could not extract company ID from token")
-            else:
-                raise Exception("Invalid token format")
-        except Exception as e:
-            raise Exception(f"Failed to extract company ID from token: {e}")
+        # Agency (Company) token: exchange for a location token.
+        company_id = claims.get("authClassId")
+        if not company_id:
+            raise Exception("Could not extract company ID from token")
 
         # Request location token
         response = await self.client.post(
             f"{self.settings.ghl_api_url}/oauth/locationToken",
             headers={
-                "Authorization": f"Bearer {agency_token}",
+                "Authorization": f"Bearer {access_token}",
                 "Version": "2021-07-28",
                 "Content-Type": "application/x-www-form-urlencoded",
             },
