@@ -56,6 +56,8 @@ class TestUsers:
         args, kwargs = req.call_args
         assert args[1] == "/users/"
         assert kwargs["params"] == {"locationId": LOCATION_ID}
+        # sub-account endpoint: must use a location token
+        assert kwargs["location_id"] == LOCATION_ID
         assert result.count == 2
 
     @pytest.mark.asyncio

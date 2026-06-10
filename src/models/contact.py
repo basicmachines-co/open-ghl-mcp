@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ContactPhone(BaseModel):
@@ -132,8 +132,14 @@ class ContactListMeta(BaseModel):
     startAfterId: Optional[str] = None
     startAfter: Optional[int] = None
     currentPage: Optional[int] = None
-    nextPage: Optional[str] = None  # Can be empty string or integer string
-    prevPage: Optional[str] = None  # Can be None or integer string
+    nextPage: Optional[str] = None  # API may return an int or string page number
+    prevPage: Optional[str] = None  # API may return an int or string page number
+
+    @field_validator("nextPage", "prevPage", mode="before")
+    @classmethod
+    def _coerce_page_to_str(cls, v: Any) -> Any:
+        """GHL returns these as either ints or strings; normalize to str."""
+        return str(v) if isinstance(v, int) else v
 
 
 class ContactList(BaseModel):

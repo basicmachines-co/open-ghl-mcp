@@ -1,8 +1,9 @@
 """Users client for GoHighLevel API v2
 
-User management is agency-level: these endpoints use the agency (company)
-token rather than a location token, so location_id is never passed to
-_request here.
+Most user management is agency-level and uses the agency (company) token
+(search/get/create/update/delete). The exception is get_users_by_location,
+which is a sub-account endpoint and requires a location token -- it passes
+location_id to _request to trigger the agency->location token exchange.
 """
 
 from typing import Optional
@@ -40,9 +41,17 @@ class UsersClient(BaseGoHighLevelClient):
         return UserList(users=users, count=data.get("count", len(users)))
 
     async def get_users_by_location(self, location_id: str) -> UserList:
-        """Get all users assigned to a location"""
+        """Get all users assigned to a location
+
+        This is a sub-account endpoint and requires a location token, so
+        location_id is passed through to trigger the token exchange (unlike
+        the agency-wide search_users, which uses the company token).
+        """
         response = await self._request(
-            "GET", "/users/", params={"locationId": location_id}
+            "GET",
+            "/users/",
+            params={"locationId": location_id},
+            location_id=location_id,
         )
         data = response.json()
         users = [User(**u) for u in data.get("users", [])]
