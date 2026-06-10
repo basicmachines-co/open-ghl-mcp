@@ -8,6 +8,9 @@ from .opportunities import OpportunitiesClient
 from .calendars import CalendarsClient
 from .forms import FormsClient
 from .custom_fields import CustomFieldsClient
+from .notes_tasks import NotesTasksClient
+from .users import UsersClient
+from .workflows import WorkflowsClient
 
 __all__ = [
     "GoHighLevelClient",
@@ -18,4 +21,7 @@ __all__ = [
     "CalendarsClient",
     "FormsClient",
     "CustomFieldsClient",
+    "NotesTasksClient",
+    "UsersClient",
+    "WorkflowsClient",
 ]

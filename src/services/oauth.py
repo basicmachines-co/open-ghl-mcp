@@ -264,6 +264,9 @@ class OAuthService:
         "locations/customFields.write",
         "locations/customValues.readonly",
         "locations/customValues.write",
+        "users.readonly",
+        "users.write",
+        "workflows.readonly",
     ]
 
     def __init__(self) -> None:

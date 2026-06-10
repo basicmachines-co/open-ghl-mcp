@@ -46,12 +46,28 @@ from ..models.custom_field import (
     CustomValueList,
 )
 
+from ..models.notes_tasks import (
+    Note,
+    NoteCreate,
+    NoteUpdate,
+    NoteList,
+    Task,
+    TaskCreate,
+    TaskUpdate,
+    TaskList,
+)
+from ..models.user import User, UserCreate, UserUpdate, UserList
+from ..models.workflow import WorkflowList
+
 from .contacts import ContactsClient
 from .conversations import ConversationsClient
 from .opportunities import OpportunitiesClient
 from .calendars import CalendarsClient
 from .forms import FormsClient
 from .custom_fields import CustomFieldsClient
+from .notes_tasks import NotesTasksClient
+from .users import UsersClient
+from .workflows import WorkflowsClient
 
 
 class GoHighLevelClient:
@@ -71,6 +87,9 @@ class GoHighLevelClient:
         self._calendars = CalendarsClient(oauth_service)
         self._forms = FormsClient(oauth_service)
         self._custom_fields = CustomFieldsClient(oauth_service)
+        self._notes_tasks = NotesTasksClient(oauth_service)
+        self._users = UsersClient(oauth_service)
+        self._workflows = WorkflowsClient(oauth_service)
 
     async def __aenter__(self):
         # Enter all specialized clients
@@ -80,6 +99,9 @@ class GoHighLevelClient:
         await self._calendars.__aenter__()
         await self._forms.__aenter__()
         await self._custom_fields.__aenter__()
+        await self._notes_tasks.__aenter__()
+        await self._users.__aenter__()
+        await self._workflows.__aenter__()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -90,6 +112,9 @@ class GoHighLevelClient:
         await self._calendars.__aexit__(exc_type, exc_val, exc_tb)
         await self._forms.__aexit__(exc_type, exc_val, exc_tb)
         await self._custom_fields.__aexit__(exc_type, exc_val, exc_tb)
+        await self._notes_tasks.__aexit__(exc_type, exc_val, exc_tb)
+        await self._users.__aexit__(exc_type, exc_val, exc_tb)
+        await self._workflows.__aexit__(exc_type, exc_val, exc_tb)
 
     # Location Methods (keeping these in main client for now)
 
@@ -417,4 +442,124 @@ class GoHighLevelClient:
         """Delete a custom value"""
         return await self._custom_fields.delete_custom_value(
             custom_value_id, location_id
+        )
+
+    # Note Methods - Delegate to NotesTasksClient
+
+    async def get_notes(self, contact_id: str, location_id: str) -> NoteList:
+        """Get all notes for a contact"""
+        return await self._notes_tasks.get_notes(contact_id, location_id)
+
+    async def get_note(self, contact_id: str, note_id: str, location_id: str) -> Note:
+        """Get a specific note"""
+        return await self._notes_tasks.get_note(contact_id, note_id, location_id)
+
+    async def create_note(
+        self, contact_id: str, note: NoteCreate, location_id: str
+    ) -> Note:
+        """Create a note on a contact"""
+        return await self._notes_tasks.create_note(contact_id, note, location_id)
+
+    async def update_note(
+        self, contact_id: str, note_id: str, updates: NoteUpdate, location_id: str
+    ) -> Note:
+        """Update a note on a contact"""
+        return await self._notes_tasks.update_note(
+            contact_id, note_id, updates, location_id
+        )
+
+    async def delete_note(
+        self, contact_id: str, note_id: str, location_id: str
+    ) -> bool:
+        """Delete a note from a contact"""
+        return await self._notes_tasks.delete_note(contact_id, note_id, location_id)
+
+    # Task Methods - Delegate to NotesTasksClient
+
+    async def get_tasks(self, contact_id: str, location_id: str) -> TaskList:
+        """Get all tasks for a contact"""
+        return await self._notes_tasks.get_tasks(contact_id, location_id)
+
+    async def get_task(self, contact_id: str, task_id: str, location_id: str) -> Task:
+        """Get a specific task"""
+        return await self._notes_tasks.get_task(contact_id, task_id, location_id)
+
+    async def create_task(
+        self, contact_id: str, task: TaskCreate, location_id: str
+    ) -> Task:
+        """Create a task on a contact"""
+        return await self._notes_tasks.create_task(contact_id, task, location_id)
+
+    async def update_task(
+        self, contact_id: str, task_id: str, updates: TaskUpdate, location_id: str
+    ) -> Task:
+        """Update a task on a contact"""
+        return await self._notes_tasks.update_task(
+            contact_id, task_id, updates, location_id
+        )
+
+    async def update_task_completed(
+        self, contact_id: str, task_id: str, completed: bool, location_id: str
+    ) -> Task:
+        """Update a task's completed status"""
+        return await self._notes_tasks.update_task_completed(
+            contact_id, task_id, completed, location_id
+        )
+
+    async def delete_task(
+        self, contact_id: str, task_id: str, location_id: str
+    ) -> bool:
+        """Delete a task from a contact"""
+        return await self._notes_tasks.delete_task(contact_id, task_id, location_id)
+
+    # User Methods - Delegate to UsersClient (agency-level)
+
+    async def search_users(self, company_id: str, **kwargs) -> UserList:
+        """Search users across an agency"""
+        return await self._users.search_users(company_id, **kwargs)
+
+    async def get_users_by_location(self, location_id: str) -> UserList:
+        """Get all users assigned to a location"""
+        return await self._users.get_users_by_location(location_id)
+
+    async def get_user(self, user_id: str) -> User:
+        """Get a specific user"""
+        return await self._users.get_user(user_id)
+
+    async def create_user(self, user: UserCreate) -> User:
+        """Create a new user"""
+        return await self._users.create_user(user)
+
+    async def update_user(self, user_id: str, updates: UserUpdate) -> User:
+        """Update an existing user"""
+        return await self._users.update_user(user_id, updates)
+
+    async def delete_user(self, user_id: str) -> bool:
+        """Delete a user"""
+        return await self._users.delete_user(user_id)
+
+    # Workflow Methods - Delegate to WorkflowsClient
+
+    async def get_workflows(self, location_id: str) -> WorkflowList:
+        """Get all workflows for a location"""
+        return await self._workflows.get_workflows(location_id)
+
+    async def add_contact_to_workflow(
+        self,
+        contact_id: str,
+        workflow_id: str,
+        location_id: str,
+        event_start_time: Optional[str] = None,
+    ) -> bool:
+        """Add a contact to a workflow"""
+        return await self._workflows.add_contact_to_workflow(
+            contact_id, workflow_id, location_id, event_start_time
+        )
+
+    async def remove_contact_from_workflow(
+        self, contact_id: str, workflow_id: str, location_id: str
+    ) -> bool:
+        """Remove a contact from a workflow"""
+        return await self._workflows.remove_contact_from_workflow(
+            contact_id, workflow_id, location_id
         )

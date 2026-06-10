@@ -35,6 +35,18 @@ from .custom_field import (
     CustomValueUpdate,
     CustomValueList,
 )
+from .notes_tasks import (
+    Note,
+    NoteCreate,
+    NoteUpdate,
+    NoteList,
+    Task,
+    TaskCreate,
+    TaskUpdate,
+    TaskList,
+)
+from .user import User, UserCreate, UserUpdate, UserList
+from .workflow import Workflow, WorkflowList
 
 __all__ = [
     # Auth models
@@ -77,4 +89,21 @@ __all__ = [
     "CustomValueCreate",
     "CustomValueUpdate",
     "CustomValueList",
+    # Note / task models
+    "Note",
+    "NoteCreate",
+    "NoteUpdate",
+    "NoteList",
+    "Task",
+    "TaskCreate",
+    "TaskUpdate",
+    "TaskList",
+    # User models
+    "User",
+    "UserCreate",
+    "UserUpdate",
+    "UserList",
+    # Workflow models
+    "Workflow",
+    "WorkflowList",
 ]
