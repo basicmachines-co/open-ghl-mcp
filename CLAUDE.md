@@ -49,6 +49,12 @@ mypy src/
 
 # Start the MCP server
 python -m src.main
+
+# Re-authorize / refresh OAuth scopes (custom mode)
+# Runs the browser OAuth flow, backs up the existing token, and reports which
+# scopes were granted. Use this after changing scopes in the marketplace app --
+# deleting config/tokens.json does NOT trigger re-auth in custom mode.
+python -m src.main --reauth
 ```
 
 ## Architecture

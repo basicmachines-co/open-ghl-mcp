@@ -3,12 +3,14 @@
 
 import asyncio
 import sys
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from fastmcp import FastMCP
 
 from .api.client import GoHighLevelClient
-from .services.oauth import OAuthService
+from .services.oauth import OAuthService, AuthMode
 from .services.setup import StandardModeSetup
 from .utils.client_helpers import get_client_with_token_override
 
@@ -533,8 +535,59 @@ async def get_appointment_resource(location_id: str, appointment_id: str) -> str
     return "\n".join(lines)
 
 
+async def reauthenticate() -> int:
+    """Force the OAuth flow to mint a fresh token (custom mode only).
+
+    Custom mode never re-prompts on startup -- it only checks that the .env
+    credentials exist and then fetches/refreshes tokens lazily, so changing the
+    app's scopes requires an explicit re-authorization. This backs up any
+    existing token (never destroying a valid config), runs the browser OAuth
+    flow requesting ALL_SCOPES, and reports which scopes were actually granted.
+    """
+    async with OAuthService() as oauth:
+        if oauth.settings.auth_mode == AuthMode.STANDARD:
+            print(
+                "ℹ️  Standard mode is active. Tokens are managed by the Basic "
+                "Machines proxy, so there is nothing to re-authorize locally."
+            )
+            return 0
+
+        # Back up an existing token rather than clobbering a valid config
+        token_path = Path(oauth.settings.token_storage_path)
+        if token_path.exists():
+            stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            backup = token_path.with_name(f"{token_path.name}.{stamp}.bak")
+            token_path.replace(backup)
+            print(f"🔒 Backed up existing token to {backup}")
+
+        print("🔐 Starting OAuth re-authorization (a browser window will open)...")
+        try:
+            token = await oauth.authenticate()
+        except Exception as e:
+            print(f"❌ Re-authorization failed: {e}", file=sys.stderr)
+            return 1
+
+        granted = set(token.scope.split()) if token.scope else set()
+        requested = set(OAuthService.ALL_SCOPES)
+        missing = requested - granted
+
+        print(f"\n✅ Re-authorization complete. Granted {len(granted)} scopes.")
+        if missing:
+            print(
+                "⚠️  These requested scopes were NOT granted -- check the app's "
+                f"Auth config and consent screen:\n   {', '.join(sorted(missing))}"
+            )
+        else:
+            print("   All requested scopes were granted.")
+        return 0
+
+
 def main():
     """Main function with startup check and setup"""
+
+    # Explicit re-authorization path: `python -m src.main --reauth`
+    if "--reauth" in sys.argv:
+        sys.exit(asyncio.run(reauthenticate()))
 
     # Check if we're running in MCP mode (no TTY) vs manual mode (with TTY)
     is_mcp_mode = not sys.stdin.isatty()
