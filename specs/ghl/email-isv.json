@@ -1,0 +1,272 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/email/verify": {
+      "post": {
+        "operationId": "verify-email",
+        "summary": "Email Verification",
+        "description": "Verify Email",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "header",
+            "description": "API Version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2021-07-28"
+              ]
+            }
+          },
+          {
+            "name": "locationId",
+            "required": true,
+            "in": "query",
+            "example": "5DP4iH6HLkQsiKESj6rh",
+            "description": "Location Id, The email verification charges will be deducted from this location (if rebilling is enabled) / company wallet",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailVerifiedResponseDto"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EmailNotVerifiedResponseDto"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/BadRequestDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnauthorizedDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnprocessableDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Email Verification"
+        ],
+        "security": [
+          {
+            "Location-Access": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Email ISV API",
+    "description": "Documentation for Email ISV API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Email Verification",
+      "description": "Documentation for Email ISV API"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://services.leadconnectorhq.com"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Sub-Account (OR) Private Integration Token of Sub-Account.",
+        "type": "http"
+      },
+      "Location-Access": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Sub-Account (OR) Private Integration Token of Sub-Account.",
+        "type": "http"
+      },
+      "Agency-Access": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Agency (OR) Private Integration Token of Agency.",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "EmailNotVerifiedResponseDto": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "example": false,
+            "description": "Email verification not processed"
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation is disabled / proper config not found",
+            "description": "Email verification failure message"
+          },
+          "address": {
+            "type": "string",
+            "example": "abc@xyz.com",
+            "description": "Email address"
+          }
+        },
+        "required": [
+          "verified"
+        ]
+      },
+      "LeadConnectorRecomandationDto": {
+        "type": "object",
+        "properties": {
+          "isEmailValid": {
+            "type": "boolean",
+            "example": false,
+            "description": "Email verification status"
+          }
+        }
+      },
+      "EmailVerifiedResponseDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "example": [
+              "mailbox_does_not_exist"
+            ],
+            "description": "Reason for email verification failure",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result": {
+            "type": "string",
+            "example": "undeliverable",
+            "enum": [
+              "deliverable",
+              "undeliverable",
+              "do_not_send",
+              "unknown",
+              "catch_all"
+            ],
+            "description": "Email verification result"
+          },
+          "risk": {
+            "type": "string",
+            "example": "low",
+            "enum": [
+              "high",
+              "low",
+              "medium",
+              "unknown"
+            ],
+            "description": "Risk level of email sending to bounce"
+          },
+          "address": {
+            "type": "string",
+            "example": "abc@xyz.com",
+            "description": "Email address"
+          },
+          "leadconnectorRecomendation": {
+            "example": {
+              "isEmailValid": false
+            },
+            "description": "Lead Connector email verification recomendation",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LeadConnectorRecomandationDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "result",
+          "risk",
+          "address",
+          "leadconnectorRecomendation"
+        ]
+      },
+      "VerificationBodyDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "email",
+            "enum": [
+              "email",
+              "contact"
+            ],
+            "description": "Email Verification type"
+          },
+          "verify": {
+            "type": "string",
+            "example": "abc@xyz.com",
+            "description": "Email Verification recepient (email address / contactId)"
+          }
+        },
+        "required": [
+          "type",
+          "verify"
+        ]
+      }
+    }
+  },
+  "x-tagGroups": {
+    "name": "LC Email",
+    "tags": [
+      "Email Verification"
+    ]
+  }
+}

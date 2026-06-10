@@ -1,0 +1,647 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/oauth/token": {
+      "post": {
+        "operationId": "get-access-token",
+        "summary": "Get Access Token",
+        "description": "Use Access Tokens to access GoHighLevel resources on behalf of an authenticated location/company.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAccessCodebodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAccessCodeSuccessfulResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/BadRequestDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnauthorizedDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnprocessableDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OAuth 2.0"
+        ]
+      }
+    },
+    "/oauth/locationToken": {
+      "post": {
+        "operationId": "get-location-access-token",
+        "summary": "Get Location Access Token from Agency Token",
+        "description": "This API allows you to generate locationAccessToken from AgencyAccessToken",
+        "parameters": [
+          {
+            "name": "Version",
+            "in": "header",
+            "description": "API Version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2021-07-28"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/GetLocationAccessCodeBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetLocationAccessTokenSuccessfulResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/BadRequestDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnauthorizedDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnprocessableDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OAuth 2.0"
+        ],
+        "security": [
+          {
+            "Agency-Access-Only": [
+              "oauth.write"
+            ]
+          }
+        ]
+      }
+    },
+    "/oauth/installedLocations": {
+      "get": {
+        "operationId": "get-installed-location",
+        "summary": "Get Location where app is installed",
+        "description": "This API allows you fetch location where app is installed upon",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Parameter to skip the number installed locations",
+            "schema": {
+              "default": "0",
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Parameter to limit the number installed locations",
+            "schema": {
+              "default": "20",
+              "example": "10",
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "required": false,
+            "in": "query",
+            "description": "Parameter to search for the installed location by name",
+            "schema": {
+              "example": "location name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isInstalled",
+            "required": false,
+            "in": "query",
+            "description": "Filters out location which are installed for specified app under the specified company",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "query",
+            "description": "Parameter to search by the companyId",
+            "schema": {
+              "example": "tDtDnQdgm2LXpyiqYvZ6",
+              "type": "string"
+            }
+          },
+          {
+            "name": "appId",
+            "required": true,
+            "in": "query",
+            "description": "Parameter to search by the appId",
+            "schema": {
+              "example": "tDtDnQdgm2LXpyiqYvZ6",
+              "type": "string"
+            }
+          },
+          {
+            "name": "versionId",
+            "required": false,
+            "in": "query",
+            "description": "VersionId of the app",
+            "schema": {
+              "example": "tDtDnQdgm2LXpyiqYvZ6",
+              "type": "string"
+            }
+          },
+          {
+            "name": "onTrial",
+            "required": false,
+            "in": "query",
+            "description": "Filters out locations which are installed for specified app in trial mode",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "planId",
+            "required": false,
+            "in": "query",
+            "description": "Filters out location which are installed for specified app under the specified planId",
+            "schema": {
+              "example": true,
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "required": false,
+            "in": "query",
+            "description": "locationId",
+            "schema": {
+              "example": "1245",
+              "type": "string"
+            }
+          },
+          {
+            "name": "Version",
+            "in": "header",
+            "description": "API Version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "2021-07-28"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetInstalledLocationsSuccessfulResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/BadRequestDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnauthorizedDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../common/common-schemas.json#/components/schemas/UnprocessableDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OAuth 2.0"
+        ],
+        "security": [
+          {
+            "Agency-Access-Only": [
+              "oauth.readonly"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "OAuth 2.0",
+    "description": "Documentation for OAuth 2.0 API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "OAuth 2.0",
+      "description": "Documentation for OAuth 2.0 API"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://services.leadconnectorhq.com"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Sub-Account (OR) Private Integration Token of Sub-Account.",
+        "type": "http"
+      },
+      "Location-Access": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Sub-Account (OR) Private Integration Token of Sub-Account.",
+        "type": "http"
+      },
+      "Location-Access-Only": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Sub-Account.",
+        "type": "http"
+      },
+      "Agency-Access": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Agency (OR) Private Integration Token of Agency.",
+        "type": "http"
+      },
+      "Agency-Access-Only": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Use the Access Token generated with user type as Agency.",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "GetAccessCodebodyDto": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "The ID provided by GHL for your integration"
+          },
+          "client_secret": {
+            "type": "string"
+          },
+          "grant_type": {
+            "type": "string",
+            "enum": [
+              "authorization_code",
+              "refresh_token",
+              "client_credentials"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "user_type": {
+            "type": "string",
+            "description": "The type of token to be requested",
+            "example": "Location",
+            "enum": [
+              "Company",
+              "Location"
+            ]
+          },
+          "redirect_uri": {
+            "type": "string",
+            "description": "The redirect URI for your application",
+            "example": "https://myapp.com/oauth/callback/gohighlevel"
+          }
+        },
+        "required": [
+          "client_id",
+          "client_secret",
+          "grant_type"
+        ]
+      },
+      "GetAccessCodeSuccessfulResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "ab12dc0ae1234a7898f9ff06d4f69gh"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expires_in": {
+            "type": "number",
+            "example": 86399
+          },
+          "refresh_token": {
+            "type": "string",
+            "example": "xy34dc0ae1234a4858f9ff06d4f66ba"
+          },
+          "scope": {
+            "type": "string",
+            "example": "conversations/message.readonly conversations/message.write"
+          },
+          "userType": {
+            "type": "string",
+            "example": "Location"
+          },
+          "locationId": {
+            "type": "string",
+            "description": "Location ID - Present only for Sub-Account Access Token",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "Company ID",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "approvedLocations": {
+            "description": "Approved locations to generate location access token",
+            "example": [
+              "l1C08ntBrFjLS0elLIYU"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "description": "USER ID - Represent user id of person who performed installation",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "planId": {
+            "type": "string",
+            "description": "Plan Id of the subscribed plan in paid apps.",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "isBulkInstallation": {
+            "type": "boolean",
+            "example": "Bearer"
+          },
+          "installToFutureLocations": {
+            "type": "boolean",
+            "description": "Boolean to control if user wants app to be automatically installed to future locations (only for company tokens)",
+            "example": true
+          },
+          "approveAllLocations": {
+            "type": "boolean",
+            "description": "Boolean indicating if user approved all locations during bulk installation (only for company tokens)",
+            "example": true
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "GetLocationAccessCodeBodyDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "Company Id of location you want to request token for"
+          },
+          "locationId": {
+            "type": "string",
+            "description": "The location ID for which you want to obtain accessToken"
+          }
+        },
+        "required": [
+          "companyId",
+          "locationId"
+        ]
+      },
+      "GetLocationAccessTokenSuccessfulResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "ab12dc0ae1234a7898f9ff06d4f69gh",
+            "description": "Location access token which can be used to authenticate & authorize API under following scope"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expires_in": {
+            "type": "number",
+            "example": 86399,
+            "description": "Time in seconds remaining for token to expire"
+          },
+          "scope": {
+            "type": "string",
+            "example": "conversations/message.readonly conversations/message.write",
+            "description": "Scopes the following accessToken have access to"
+          },
+          "locationId": {
+            "type": "string",
+            "description": "Location ID - Present only for Sub-Account Access Token",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "planId": {
+            "type": "string",
+            "description": "Plan Id of the subscribed plan in paid apps.",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "userId": {
+            "type": "string",
+            "description": "USER ID - Represent user id of person who performed installation",
+            "example": "l1C08ntBrFjLS0elLIYU"
+          },
+          "appId": {
+            "type": "string",
+            "description": "App ID of the installed application",
+            "example": "6578278e879ad2646715ba9c"
+          },
+          "versionId": {
+            "type": "string",
+            "description": "Version ID of the installed app version",
+            "example": "6578278e879ad2646715ba9c"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "InstalledLocationSchema": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "0IHuJvc2ofPAAA8GzTRi",
+            "description": "Location ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Deo",
+            "description": "Name of the location"
+          },
+          "address": {
+            "type": "string",
+            "example": "47 W 13th St, New York, NY 10011, USA",
+            "description": "Address linked to location"
+          },
+          "isInstalled": {
+            "type": "boolean",
+            "example": true,
+            "description": "Check if the requested app is installed for following location"
+          },
+          "versionId": {
+            "type": "string",
+            "example": "6578278e879ad2646715ba9c",
+            "description": "Version ID of the installed app version for this location"
+          },
+          "installedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-01-15T10:30:00.000Z",
+            "description": "Timestamp when the app was installed on this location"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "address"
+        ]
+      },
+      "GetInstalledLocationsSuccessfulResponseDto": {
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstalledLocationSchema"
+            }
+          },
+          "count": {
+            "type": "number",
+            "example": 1231,
+            "description": "Total location count under the company"
+          },
+          "installToFutureLocations": {
+            "type": "boolean",
+            "description": "Boolean to control if user wants app to be automatically installed to future locations",
+            "example": true
+          }
+        }
+      }
+    }
+  },
+  "x-tagGroups": {
+    "name": "OAuth 2.0",
+    "tags": [
+      "OAuth 2.0"
+    ]
+  }
+}

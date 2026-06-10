@@ -27,6 +27,7 @@ from .mcp.tools.custom_fields import _register_custom_field_tools
 from .mcp.tools.notes_tasks import _register_notes_tasks_tools
 from .mcp.tools.users import _register_user_tools
 from .mcp.tools.workflows import _register_workflow_tools
+from .mcp.tools.gateway import _register_gateway_tools
 
 
 async def startup_check_and_setup():
@@ -163,6 +164,7 @@ def register_all_tools():
     _register_notes_tasks_tools(mcp, get_client)
     _register_user_tools(mcp, get_client)
     _register_workflow_tools(mcp, get_client)
+    _register_gateway_tools(mcp, get_client)
 
 
 # Resources will be imported separately in Phase 3

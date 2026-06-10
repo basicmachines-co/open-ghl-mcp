@@ -10,3 +10,4 @@ from .custom_fields import *  # noqa: F403
 from .notes_tasks import *  # noqa: F403
 from .users import *  # noqa: F403
 from .workflows import *  # noqa: F403
+from .gateway import *  # noqa: F403

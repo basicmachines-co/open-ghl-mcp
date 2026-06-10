@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "description": "Known-real-but-undocumented GoHighLevel endpoints that are NOT present in the official OpenAPI spec (specs/ghl/*.json). The gateway catalog merges these so the long-tail discovery surface isn't limited to what GHL documents. Entries that are also present in the vendored spec are ignored (spec wins).",
+    "seeded_from": "https://github.com/busybee3333/go-high-level-mcp-2026-complete/blob/main/docs/GHL-LOCAL-ENDPOINT-CLASSIFICATION.md",
+    "seeded_on": "2026-06-10",
+    "note": "Starting seed of clearly-real entries. Expand from the full classification (~253 references) as endpoints are confirmed; drift CI promotes any that graduate into the official spec."
+  },
+  "endpoints": [
+    {"method": "POST", "path": "/notes/", "category": "notes", "scope": "contacts.write", "summary": "Create a note (standalone notes API; not in official spec)"},
+    {"method": "POST", "path": "/notes/search", "category": "notes", "scope": "contacts.readonly", "summary": "Search notes (standalone notes API)"},
+    {"method": "GET", "path": "/notes/{noteId}", "category": "notes", "scope": "contacts.readonly", "summary": "Get a note by id (standalone notes API)"},
+    {"method": "PUT", "path": "/notes/{noteId}", "category": "notes", "scope": "contacts.write", "summary": "Update a note (standalone notes API)"},
+    {"method": "DELETE", "path": "/notes/{noteId}", "category": "notes", "scope": "contacts.write", "summary": "Delete a note (standalone notes API)"},
+    {"method": "POST", "path": "/notes/{noteId}/restore", "category": "notes", "scope": "contacts.write", "summary": "Restore a deleted note (standalone notes API)"},
+    {"method": "PATCH", "path": "/notes/{noteId}/attachments", "category": "notes", "scope": "contacts.write", "summary": "Update note attachments (standalone notes API)"},
+    {"method": "PUT", "path": "/notes/{noteId}/relations", "category": "notes", "scope": "contacts.write", "summary": "Update note relations (standalone notes API)"},
+    {"method": "GET", "path": "/triggers/", "category": "triggers", "scope": "workflows.readonly", "summary": "List triggers (undocumented)"},
+    {"method": "GET", "path": "/triggers/types", "category": "triggers", "scope": "workflows.readonly", "summary": "List trigger types (undocumented)"},
+    {"method": "GET", "path": "/triggers/{triggerId}", "category": "triggers", "scope": "workflows.readonly", "summary": "Get a trigger by id (undocumented)"},
+    {"method": "GET", "path": "/workflows/{workflowId}/executions", "category": "workflows", "scope": "workflows.readonly", "summary": "List workflow executions (undocumented)"}
+  ]
+}
