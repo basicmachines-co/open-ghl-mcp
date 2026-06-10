@@ -5,12 +5,17 @@ A Model Context Protocol (MCP) server that provides seamless integration with th
 
 ## Features
 
-- 🔐 **OAuth 2.0 Authentication**: Full OAuth flow with automatic token management by default
-- 🏢 **Multi-location Support**: Works with agency accounts to manage multiple sub-accounts
-- 👥 **Contact Management**: Complete CRUD operations for contacts
-- 💬 **Conversations**: Search conversations, view messages, and manage messaging
-- 📝 **Forms & Submissions**: List forms, view submissions, test form submissions like a website visitor
-- 🏷️ **Tag Management**: Add and remove tags from contacts
+- 🔐 **OAuth 2.0 Authentication**: Full OAuth flow with automatic token management
+- 🏢 **Agency or sub-account scope**: An agency (Company) token manages every
+  sub-account via automatic agency→location token exchange; a sub-account
+  (Location) token is used directly and is locked to that one sub-account
+- 👥 **Curated domains**: Contacts, conversations & messaging, opportunities &
+  pipelines, calendars & appointments, forms, custom fields & values,
+  notes & tasks, users, and workflows — typed tools that handle API quirks
+- 🌐 **Full-surface gateway**: `ghl_list_endpoints` + `ghl_request` reach the
+  entire GoHighLevel v2 API (the long tail beyond the curated tools), with
+  automatic token routing, quirk normalization, and confirmation gating on
+  destructive/high-impact writes
 - 🔄 **Automatic Token Refresh**: Handles token expiration seamlessly
 - 🛠️ **MCP Tools & Resources**: Both tools and resources for flexible integration
 
@@ -43,11 +48,17 @@ python -m src.main
 
 ## 1. Configuration
 
-Use your own GoHighLevel Marketplace App:
+> **Basic Machines team members:** skip this — use the shared app credentials
+> from 1Password and follow [Team Setup](#team-setup-basic-machines) instead of
+> creating your own app.
+
+For external/self-hosted use, create your own GoHighLevel Marketplace App:
 
 1. Create your own GoHighLevel Marketplace App
 2. Set the redirect URL to: `http://localhost:8080/oauth/callback`
-3. Set the permissions you want for the tools and resources below
+3. Enable the scopes you want for the tools below (the server requests its full
+   `ALL_SCOPES` set at authorization; the granted token is the intersection of
+   that and the scopes your app enables)
 
 
 ## 2. Usage
@@ -68,6 +79,83 @@ python -m src.main
 #### Custom Mode Setup
 1. The server will ask you for your GHL Marketplace App Client ID and Secret
 2. Install your App to generate an OAuth Token
+
+## Team Setup (Basic Machines)
+
+For internal team members. The goal is **Admin access to a single sub-account**
+(no agency-wide access): you authorize as a Sub-Account Admin and receive a
+**Location token** that is locked to your one sub-account — the server will
+refuse any other location.
+
+> You point your coding agent at this repo and ask it to install the server.
+> The agent can do every step **except** the browser consent — that one is
+> yours (you have to click "Allow" while signed in as the right GHL user).
+
+### Prerequisites
+
+- Python 3.12+ and the [`uv`](https://docs.astral.sh/uv/) package manager
+- A **GoHighLevel Sub-Account Admin** login on the sub-account you'll manage
+  (ask an agency admin to create one — *not* an agency-level user)
+- Access to the team **1Password** vault item **"GoHighLevel MCP — App
+  Credentials"** (holds `GHL_CLIENT_ID` and `GHL_CLIENT_SECRET` for the shared
+  Basic Machines app — do **not** create your own marketplace app)
+
+### Steps
+
+1. **Clone & install**
+   ```bash
+   git clone https://github.com/basicmachines-co/open-ghl-mcp.git
+   cd open-ghl-mcp
+   uv venv && source .venv/bin/activate
+   uv pip install -r requirements.txt
+   ```
+
+2. **Create `.env`** from the template, filling the two secrets from 1Password:
+   ```bash
+   cp .env.example .env
+   # then set GHL_CLIENT_ID and GHL_CLIENT_SECRET from the 1Password item
+   ```
+
+3. **Authorize (interactive — the human step)**
+   - In your browser, sign in to GoHighLevel as **your Sub-Account Admin** user
+     (use an incognito window if you're also logged in as an agency user — the
+     logged-in user determines the token you get).
+   - Run the OAuth flow:
+     ```bash
+     uv run python -m src.main --reauth
+     ```
+   - Approve in the browser and select your sub-account. You'll get a
+     **Location token** scoped to just that sub-account; the command prints the
+     number of granted scopes.
+
+4. **Register the server with your MCP client**
+   - **Claude Code** (replace the path with your clone's absolute path):
+     ```bash
+     claude mcp add ghl -s user -- uv run --directory /absolute/path/to/open-ghl-mcp python -m src.main
+     ```
+   - **Claude Desktop** — add to `claude_desktop_config.json`:
+     ```json
+     {
+       "mcpServers": {
+         "ghl": {
+           "command": "uv",
+           "args": ["run", "--directory", "/absolute/path/to/open-ghl-mcp", "python", "-m", "src.main"]
+         }
+       }
+     }
+     ```
+
+5. **Restart your MCP client** so it loads the `ghl` tools (a server added
+   mid-session isn't picked up until restart).
+
+### Notes
+
+- **Re-authorize anytime** (e.g. after the app's scopes change):
+  `uv run python -m src.main --reauth` — it backs up your existing token first.
+- **Sub-account isolation**: your token only works for your own sub-account;
+  requests to any other location are refused with a clear error.
+- **Agency owners** who authorize get a Company token instead, which manages
+  all sub-accounts via automatic location-token exchange.
 
 ## API Reference
 
