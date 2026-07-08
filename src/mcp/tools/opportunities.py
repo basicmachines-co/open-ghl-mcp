@@ -184,7 +184,11 @@ def _register_opportunity_tools(_mcp, _get_client, _oauth_service):
         """Debug tool to show current MCP server configuration and auth status"""
         import os
 
-        if oauth_service is None:
+        current_oauth_service = (
+            oauth_service() if callable(oauth_service) else oauth_service
+        )
+
+        if current_oauth_service is None:
             return {"error": "OAuth service not initialized"}
 
         # Use absolute paths based on module location
@@ -231,19 +235,22 @@ def _register_opportunity_tools(_mcp, _get_client, _oauth_service):
                 "standard_config_json_exists": standard_config_file.exists(),
             },
             "oauth_service": {
-                "auth_mode": str(oauth_service.settings.auth_mode),
+                "auth_mode": str(current_oauth_service.settings.auth_mode),
                 "ghl_client_id": (
-                    oauth_service.settings.ghl_client_id[:10] + "..."
-                    if oauth_service.settings.ghl_client_id
+                    current_oauth_service.settings.ghl_client_id[:10] + "..."
+                    if current_oauth_service.settings.ghl_client_id
                     else None
                 ),
-                "has_ghl_client_secret": bool(oauth_service.settings.ghl_client_secret),
-                "supabase_url": oauth_service.settings.supabase_url,
-                "has_supabase_access_key": bool(
-                    oauth_service.settings.supabase_access_key
+                "has_ghl_client_secret": bool(
+                    current_oauth_service.settings.ghl_client_secret
                 ),
-                "standard_auth_service_initialized": oauth_service._standard_auth
-                is not None,
+                "supabase_url": current_oauth_service.settings.supabase_url,
+                "has_supabase_access_key": bool(
+                    current_oauth_service.settings.supabase_access_key
+                ),
+                "standard_auth_service_initialized": (
+                    current_oauth_service._standard_auth is not None
+                ),
             },
             "token_status": {
                 "custom_token_status": token_status,
